@@ -1,19 +1,39 @@
 pipeline {
-  agent {
-    docker { image 'my-python-image' }
-  }
-  stages {
-    stage('Test') {
-      steps {
-        echo 'Welcome to Jenkins'
+    agent { 
+        node {
+            label 'my-python-image'
+            }
       }
+    triggers {
+        pollSCM '* * * * *'
     }
-  }
-  stages {
-    stage('Deliver') {
-      steps {
-        echo 'Congrat Jenkins'
-      }
+    stages {
+        stage('Build') {
+            steps {
+                echo "Building.."
+                sh '''
+                cd myapp
+                pip install -r requirements.txt
+                '''
+            }
+        }
+        stage('Test') {
+            steps {
+                echo "Testing.."
+                sh '''
+                cd myapp
+                python3 hello.py
+                python3 hello.py --name=Brad
+                '''
+            }
+        }
+        stage('Deliver') {
+            steps {
+                echo 'Deliver....'
+                sh '''
+                echo "doing delivery stuff.."
+                '''
+            }
+        }
     }
-  }
 }
